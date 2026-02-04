@@ -2,7 +2,7 @@ services:
   api:
     build: .
     ports:
-      - "8000:8000"
+      - "8001:8001"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/dailymotion
       - SMTP_HOST=mailhog
@@ -14,7 +14,7 @@ services:
         condition: service_started
     volumes:
       - .:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 
   db:
     image: postgres:16-alpine
