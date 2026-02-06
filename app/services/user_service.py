@@ -94,3 +94,22 @@ class UserService:
             raise ActivationCodeExpiredError()
 
         return await self.repository.activate_user(user.id)
+
+    async def resend_activation_code(self, email: str, password: str) -> bool:
+        """Generate and send a new activation code."""
+        user = await self.authenticate_user(email, password)
+
+        if user.is_active:
+            raise UserAlreadyActiveError()
+
+        activation_code = self.generate_activation_code()
+        expires_at = datetime.now(timezone.utc) + timedelta(
+            seconds=settings.activation_code_expiry_seconds
+        )
+
+        await self.repository.update_activation_code(
+            user.id, activation_code, expires_at
+        )
+        await self.email_service.send_activation_code(email, activation_code)
+
+        return True
