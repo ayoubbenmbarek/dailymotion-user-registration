@@ -1,27 +1,15 @@
-import asyncio
-from datetime import datetime, timedelta, timezone
-from typing import AsyncGenerator, Generator
-from unittest.mock import AsyncMock
+from datetime import datetime, timezone
+from typing import AsyncGenerator
 from uuid import uuid4
 
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
-from app.database import Database
 from app.dependencies import get_email_service, get_user_repository
 from app.main import app
 from app.models.user import UserInDB
-from app.repositories.user_repository import UserRepository
 from app.services.email_service import EmailServiceInterface
-
-
-@pytest.fixture(scope="session")
-def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
-    """Create an event loop for the test session."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
 
 
 class MockUserRepository:
