@@ -62,3 +62,33 @@ async def activate_user(
         code=request.code,
     )
     return ActivationResponse()
+
+
+class ResendCodeResponse(BaseModel):
+    """Response model for resend activation code."""
+
+    message: str = "A new activation code has been sent to your email"
+
+
+@router.post(
+    "/resend-code",
+    response_model=ResendCodeResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def resend_activation_code(
+    credentials: Annotated[HTTPBasicCredentials, Depends(security)],
+    user_service: Annotated[UserService, Depends(get_user_service)],
+) -> ResendCodeResponse:
+    """
+    Resend activation code.
+
+    - Requires Basic Authentication with email and password
+    - Generates a new 4-digit activation code
+    - Sends the new code to the user's email
+    - The new code expires after 1 minute
+    """
+    await user_service.resend_activation_code(
+        email=credentials.username,
+        password=credentials.password,
+    )
+    return ResendCodeResponse()
