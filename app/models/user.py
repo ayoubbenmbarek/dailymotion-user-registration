@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 
 
 class UserRegistrationRequest(BaseModel):
@@ -49,6 +49,8 @@ class ActivationResponse(BaseModel):
 class UserInDB(BaseModel):
     """Internal model representing a user in the database."""
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     email: str
     password_hash: str
@@ -57,6 +59,3 @@ class UserInDB(BaseModel):
     activation_code_expires_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True
