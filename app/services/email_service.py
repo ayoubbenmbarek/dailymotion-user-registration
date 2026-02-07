@@ -18,7 +18,7 @@ class EmailServiceInterface(ABC):
 class SMTPEmailService(EmailServiceInterface):
     """SMTP email service implementation using MailHog."""
 
-    def __init__(self, host: str = None, port: int = None):
+    def __init__(self, host: str | None = None, port: int | None = None):
         self.host = host or settings.smtp_host
         self.port = port or settings.smtp_port
 
