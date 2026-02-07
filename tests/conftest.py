@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
@@ -32,8 +32,8 @@ class MockUserRepository:
             is_active=False,
             activation_code=activation_code,
             activation_code_expires_at=activation_code_expires_at,
-            created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
+            updated_at=datetime.now(UTC),
         )
         self.users[email] = user
         return user

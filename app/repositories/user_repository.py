@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 import asyncpg
@@ -33,7 +32,7 @@ class UserRepository:
             )
             return UserInDB(**dict(row))
 
-    async def get_user_by_email(self, email: str) -> Optional[UserInDB]:
+    async def get_user_by_email(self, email: str) -> UserInDB | None:
         """Retrieve a user by email address."""
         query = """
             SELECT id, email, password_hash, is_active, activation_code,
@@ -47,7 +46,7 @@ class UserRepository:
                 return UserInDB(**dict(row))
             return None
 
-    async def get_user_by_id(self, user_id: UUID) -> Optional[UserInDB]:
+    async def get_user_by_id(self, user_id: UUID) -> UserInDB | None:
         """Retrieve a user by ID."""
         query = """
             SELECT id, email, password_hash, is_active, activation_code,
@@ -101,4 +100,5 @@ class UserRepository:
         """Check if an email already exists in the database."""
         query = "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)"
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(query, email)
+            result = await conn.fetchval(query, email)
+            return bool(result)

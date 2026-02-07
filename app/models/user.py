@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
@@ -55,7 +54,7 @@ class UserInDB(BaseModel):
     email: str
     password_hash: str
     is_active: bool
-    activation_code: Optional[str] = None
-    activation_code_expires_at: Optional[datetime] = None
+    activation_code: str | None = None
+    activation_code_expires_at: datetime | None = None
     created_at: datetime
     updated_at: datetime

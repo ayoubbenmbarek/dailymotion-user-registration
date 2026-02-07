@@ -1,5 +1,4 @@
 import asyncpg
-from typing import Optional
 
 from app.config import settings
 
@@ -7,7 +6,7 @@ from app.config import settings
 class Database:
     """Manages asyncpg connection pool."""
 
-    pool: Optional[asyncpg.Pool] = None
+    pool: asyncpg.Pool | None = None
 
     @classmethod
     async def connect(cls) -> None:

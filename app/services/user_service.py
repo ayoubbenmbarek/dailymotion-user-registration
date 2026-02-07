@@ -1,5 +1,5 @@
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from passlib.hash import bcrypt
 
@@ -10,7 +10,6 @@ from app.exceptions import (
     InvalidCredentialsError,
     UserAlreadyActiveError,
     UserAlreadyExistsError,
-    UserNotFoundError,
 )
 from app.models.user import UserInDB, UserRegistrationResponse
 from app.repositories.user_repository import UserRepository
@@ -32,12 +31,12 @@ class UserService:
     @staticmethod
     def hash_password(password: str) -> str:
         """Hash a password using bcrypt."""
-        return bcrypt.hash(password)
+        return str(bcrypt.hash(password))
 
     @staticmethod
     def verify_password(password: str, password_hash: str) -> bool:
         """Verify a password against its hash."""
-        return bcrypt.verify(password, password_hash)
+        return bool(bcrypt.verify(password, password_hash))
 
     async def register_user(self, email: str, password: str) -> UserRegistrationResponse:
         """Register a new user and send activation code."""
@@ -45,9 +44,7 @@ class UserService:
             raise UserAlreadyExistsError()
 
         activation_code = self.generate_activation_code()
-        expires_at = datetime.now(timezone.utc) + timedelta(
-            seconds=settings.activation_code_expiry_seconds
-        )
+        expires_at = datetime.now(UTC) + timedelta(seconds=settings.activation_code_expiry_seconds)
 
         password_hash = self.hash_password(password)
         user = await self.repository.create_user(
@@ -85,10 +82,10 @@ class UserService:
         if user.activation_code_expires_at is None:
             raise InvalidActivationCodeError()
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expires_at = user.activation_code_expires_at
         if expires_at.tzinfo is None:
-            expires_at = expires_at.replace(tzinfo=timezone.utc)
+            expires_at = expires_at.replace(tzinfo=UTC)
 
         if now > expires_at:
             raise ActivationCodeExpiredError()
@@ -103,13 +100,9 @@ class UserService:
             raise UserAlreadyActiveError()
 
         activation_code = self.generate_activation_code()
-        expires_at = datetime.now(timezone.utc) + timedelta(
-            seconds=settings.activation_code_expiry_seconds
-        )
+        expires_at = datetime.now(UTC) + timedelta(seconds=settings.activation_code_expiry_seconds)
 
-        await self.repository.update_activation_code(
-            user.id, activation_code, expires_at
-        )
+        await self.repository.update_activation_code(user.id, activation_code, expires_at)
         await self.email_service.send_activation_code(email, activation_code)
 
         return True
